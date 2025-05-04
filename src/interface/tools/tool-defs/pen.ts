@@ -4,7 +4,8 @@ import type { MouseSpy } from "../utils";
 import { drawLine, drawLines } from "../../../utils/canvas";
 import { canvasState } from "../../../canvas/state";
 import { canvasHistory } from "../../../composables/history";
-
+import { LineSegmentSet } from "../../elements";
+import { elementsStore } from "../../elements";
 export class PenTool implements Tool {
     constructor(
         private mouseSpy: MouseSpy,
@@ -35,6 +36,9 @@ export class PenTool implements Tool {
             fragments = [];
             const strokeStyle = this.strokeStyle;
             const lineWidth = this.lineWidth;
+
+            elementsStore.lineSegmentSets.push(new LineSegmentSet(lines, strokeStyle, lineWidth));
+
             canvasHistory.push({
                 apply: () => {
                     this.ctx.save();

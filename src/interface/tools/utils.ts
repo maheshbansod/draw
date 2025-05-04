@@ -25,6 +25,20 @@ export class MouseSpy {
             this.isMouseDown = true;
             this.previousX = event.clientX;
             this.previousY = event.clientY;
+            this.currentX = event.clientX;
+            this.currentY = event.clientY;
+            this.listeners.forEach((listener) => {
+                listener.onMouseDown.forEach((listener) => {
+                    listener({
+                        isMouseDown: this.isMouseDown,
+                        x: this.currentX,
+                        y: this.currentY,
+                        previousX: this.previousX,
+                        previousY: this.previousY,
+                        event,
+                    });
+                });
+            });
         }
         const onMouseMove = (event: MouseEvent) => {
             this.previousX = this.currentX;

@@ -1,3 +1,6 @@
+// todo: change this eraser to be component based eraser - so it should erase a whole component instead
+// of just drawing a new line
+
 import { canvasState } from "../../../canvas/state";
 import { canvasHistory } from "../../../composables/history";
 import { drawLine, drawLines } from "../../../utils/canvas";
@@ -28,8 +31,6 @@ export class EraserTool implements Tool {
 
             canvasHistory.push({
                 apply: () => {
-                    console.log('iinitisl raser stroke style', this.ctx.strokeStyle);
-                    console.log('iinitisl raser line width', this.ctx.lineWidth);
                     this.ctx.save();
 
                     this.ctx.strokeStyle = bgColor;
@@ -39,8 +40,6 @@ export class EraserTool implements Tool {
                     this.ctx.stroke();
 
                     this.ctx.restore();
-                    console.log('eraser stroke style', this.ctx.strokeStyle);
-                    console.log('eraser line width', this.ctx.lineWidth);
                 }
             });
         });
@@ -52,7 +51,6 @@ export class EraserTool implements Tool {
     }
     onDestroy(): void {
         this.mouseSpy.unregisterAll(this);
-        console.log('eraser stroke style', this.ctx.strokeStyle);
         this.ctx.strokeStyle = this.previousStrokeStyle;
     }
 }
