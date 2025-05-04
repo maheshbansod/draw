@@ -2,24 +2,24 @@
     <canvas ref="canvas" />
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { useTool } from '../composables/tools';
-import { PenTool } from '../interface/tools/pen';
 import { MouseSpy } from '../interface/tools/utils';
 import { useToolboxes } from '../composables/toolboxes';
-const canvas = ref(null);
+const canvas = ref<HTMLCanvasElement | null>(null);
 
 const { setToolDependencies } = useToolboxes();
 
 onMounted(() => {
     const canvasElement = canvas.value;
+    if (!canvasElement) return;
     const ctx = canvasElement.getContext('2d');
+    if (!ctx) return;
     const width = canvasElement.clientWidth;
     const height = canvasElement.clientHeight;
     canvasElement.width = width;
     canvasElement.height = height;
-    console.log(width, height);
+    console.log(`canvas size: ${width}x${height}`);
 
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 5;
