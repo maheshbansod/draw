@@ -1,6 +1,6 @@
-import type { ToolDependencies } from "./deps";
-import { ToolActivator, type Tool } from "./index";
-import type { MouseSpy } from "./utils";
+import type { ToolDependencies } from "../deps";
+import { ToolActivator, type Tool } from "../index";
+import type { MouseSpy } from "../utils";
 
 export class PenTool implements Tool {
     constructor(

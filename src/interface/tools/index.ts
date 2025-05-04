@@ -1,5 +1,5 @@
 import type { Placeable } from "../types";
-import { PenToolActivator } from "./pen";
+import { PenToolActivator } from "./tool-defs/pen";
 import type { ToolDependencies } from "./deps";
 export class ToolActivator {
     // should be set by the subclass

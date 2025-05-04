@@ -1,4 +1,4 @@
-import { PenToolActivator } from "./pen";
+import { PenToolActivator } from "./tool-defs/pen";
 
 export const defaultToolBoxes = [
     {
