@@ -18,8 +18,8 @@ export const defaultToolBoxes = [
         tools: [
             UndoToolActivator,
         ],
-        x: 100,
-        y: 0,
+        x: 0,
+        y: 100,
         width: 100,
         height: 100,
     }

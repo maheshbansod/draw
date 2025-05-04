@@ -22,7 +22,7 @@ const { selectTool, isCurrentToolActivator } = useTool();
     }">
         <div class="tools-box-item" v-for="tool in tools" :key="tool.name">
             <button
-                class="cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 transition-colors px-2 py-1"
+                class="cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 transition-colors px-2 py-1 select-none"
                 :class="{ 'bg-gray-300': isCurrentToolActivator(tool) }"
                 @click="selectTool(tool)"
             >
@@ -38,5 +38,7 @@ const { selectTool, isCurrentToolActivator } = useTool();
     border-radius: 10px;
     padding: 10px;
     position: absolute;
+    display: flex;
+    gap: 10px;
 }
 </style>
