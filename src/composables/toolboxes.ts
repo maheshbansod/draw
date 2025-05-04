@@ -6,7 +6,6 @@ const toolDependencies = shallowRef<ToolDependencies|null>(null);
 
 export const useToolboxes = () => {
     const toolBoxes = computed(() => {
-        console.log('toolBoxes computed accessed, toolDependencies:', toolDependencies.value);
         return toolDependencies.value ? defaultToolBoxes.map(toolBox => {
             const mouseSpy = toolDependencies.value!.mouseSpy;
             const ctx = toolDependencies.value!.ctx;

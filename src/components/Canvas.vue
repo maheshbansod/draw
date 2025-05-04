@@ -3,9 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { MouseSpy } from '../interface/tools/utils';
 import { useToolboxes } from '../composables/toolboxes';
+import { canvasState } from '../canvas/state';
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 const { setToolDependencies } = useToolboxes();
@@ -21,9 +22,16 @@ onMounted(() => {
     canvasElement.height = height;
     console.log(`canvas size: ${width}x${height}`);
 
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 5;
-    
+    ctx.strokeStyle = canvasState.strokeStyle;
+    ctx.lineWidth = canvasState.lineWidth;
+
+    ctx.fillStyle = canvasState.bgColor;
+    ctx.fillRect(0, 0, width, height);
+
+    watch(canvasState, () => {
+        ctx.strokeStyle = canvasState.strokeStyle;
+        ctx.lineWidth = canvasState.lineWidth;
+    });
 
     // disable scroll
     canvasElement.addEventListener('wheel', (event) => {
