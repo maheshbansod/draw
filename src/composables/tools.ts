@@ -9,11 +9,16 @@ export const useTool = () => {
     };
 
     const selectTool = (toolActivator: ToolActivator) => {
-        if (currentTool.value) {
+        const tool = toolActivator.activate();
+
+        if (currentTool.value && !tool.isInstant) {
             currentTool.value.onDestroy();
         }
-        const tool = toolActivator.activate();
-        setCurrentTool(tool);
+        if (tool.isInstant) {
+            tool.onDestroy();
+        } else {
+            setCurrentTool(tool);
+        }
     };
 
     const isCurrentToolActivator = (toolActivator: ToolActivator) => {

@@ -1,8 +1,12 @@
-import { ref } from "vue";
+import { CanvasHistoryManager } from "../interface/draw-board-manager";
 
-const history = ref<{
-    id: string;
-    type: 'pen' | 'eraser' | 'text';
-    data: any;
-}[]>([]);
+// would this work?
+export const canvasHistory = new CanvasHistoryManager();
+
+// is this useless? idk
+export function useHistory() {
+    return {
+        history: canvasHistory,
+    };
+}
 

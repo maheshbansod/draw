@@ -21,5 +21,10 @@ export type ToolBox = Placeable & {
 }
 
 export interface Tool {
+    /**
+     * An instant tool is applied immediately when it is activated and
+     * so it is deactivated immediately after it is activated.
+     */
+    isInstant?: boolean;
     onDestroy(): void;
 }

@@ -1,8 +1,9 @@
 import type { ToolDependencies } from "../deps";
 import { ToolActivator, type Tool } from "../index";
 import type { MouseSpy } from "../utils";
-import { drawLine } from "../../../utils/canvas";
+import { drawLine, drawLines } from "../../../utils/canvas";
 import { canvasState } from "../../../canvas/state";
+import { canvasHistory } from "../../../composables/history";
 
 export class PenTool implements Tool {
     constructor(
@@ -11,11 +12,50 @@ export class PenTool implements Tool {
         private strokeStyle: string,
         private lineWidth: number,
     ) {
+        let fragments: {
+            start: { x: number, y: number },
+            end: { x: number, y: number },
+            strokeStyle: string,
+            lineWidth: number
+        }[] = [];
         mouseSpy.registerMouseMove(this, ({isMouseDown, x, y, previousX, previousY}) => {
             if (!isMouseDown) return;
 
-            this.drawLine({ x: previousX, y: previousY }, { x, y });
+            this.scheduleDrawLine({ x: previousX, y: previousY }, { x, y });
+
+            fragments.push({
+                start: { x: previousX, y: previousY },
+                end: { x, y },
+                strokeStyle: this.strokeStyle,
+                lineWidth: this.lineWidth
+            });
         });
+        mouseSpy.registerMouseUp(this, () => {
+            const lines = [...fragments];
+            fragments = [];
+            const strokeStyle = this.strokeStyle;
+            const lineWidth = this.lineWidth;
+            canvasHistory.push({
+                apply: () => {
+                    this.ctx.save();
+
+                    this.ctx.strokeStyle = strokeStyle;
+                    this.ctx.lineWidth = lineWidth;
+                    this.ctx.beginPath();
+                    drawLines(this.ctx, lines);
+                    this.ctx.stroke();
+
+                    this.ctx.restore();
+                }
+            })
+        });
+    }
+    scheduleDrawLine(start: { x: number, y: number }, end: { x: number, y: number }) {
+        // todo: maybe i'll queue  them and draw later with debouncing idk
+
+        this.ctx.beginPath();
+        this.drawLine(start, end);
+        this.ctx.stroke();
     }
 
     drawLine(start: { x: number, y: number }, end: { x: number, y: number }) {

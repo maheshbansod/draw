@@ -3,9 +3,9 @@ export class HistoryNode<T> {
     parent: HistoryNode<T> | null;
     state: T;
 
-    constructor(state: T) {
+    constructor(state: T, parent: HistoryNode<T> | null) {
         this.children = [];
-        this.parent = null;
+        this.parent = parent;
         this.state = state;
     }
 }

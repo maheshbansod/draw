@@ -7,6 +7,7 @@ import { ref, onMounted, watch } from 'vue';
 import { MouseSpy } from '../interface/tools/utils';
 import { useToolboxes } from '../composables/toolboxes';
 import { canvasState } from '../canvas/state';
+import { canvasHistory } from '../composables/history';
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 const { setToolDependencies } = useToolboxes();
@@ -22,11 +23,17 @@ onMounted(() => {
     canvasElement.height = height;
     console.log(`canvas size: ${width}x${height}`);
 
-    ctx.strokeStyle = canvasState.strokeStyle;
-    ctx.lineWidth = canvasState.lineWidth;
+    function beforeFirstCommit() {
+        if (!ctx) return;
+        ctx.strokeStyle = canvasState.strokeStyle;
+        ctx.lineWidth = canvasState.lineWidth;
 
-    ctx.fillStyle = canvasState.bgColor;
-    ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = canvasState.bgColor;
+        ctx.fillRect(0, 0, width, height);
+    }
+    canvasHistory.setBeforeFirstCommit(beforeFirstCommit);
+    canvasHistory.setCtx(ctx);
+    beforeFirstCommit();
 
     watch(canvasState, () => {
         ctx.strokeStyle = canvasState.strokeStyle;
