@@ -6,3 +6,4 @@
 - [ ] show icons for tools
 - [ ] resize
 - [ ] move
+- [ ] canvas history should be serialize-able
