@@ -2,6 +2,7 @@ import { PenToolActivator } from "./tool-defs/pen";
 import { EraserToolActivator } from "./tool-defs/eraser";
 import { UndoToolActivator } from "./tool-defs/undo";
 import { PointerToolActivator } from "./tool-defs/pointer";
+import { RectangleToolActivator } from "./tool-defs/rectangle";
 export const defaultToolBoxes = [
     {
         id: 'toolbox-1',
@@ -9,6 +10,7 @@ export const defaultToolBoxes = [
             PenToolActivator,
             EraserToolActivator,
             PointerToolActivator,
+            RectangleToolActivator,
         ],
         x: 0,
         y: 0,

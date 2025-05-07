@@ -1,5 +1,5 @@
 import { canvasState } from "../canvas/state";
-import { drawLines } from "../utils/canvas";
+import { drawLine, drawLines } from "../utils/canvas";
 import { isPointOnLine } from "../utils/math";
 
 export type LineSegment = {
@@ -37,6 +37,11 @@ export class LineSegmentSet {
         ctx.strokeStyle = this.strokeStyle;
         ctx.lineWidth = this.lineWidth;
         drawLines(ctx, this.segments);
+        if (this.loop) {
+            const lastSegment = this.segments[this.segments.length - 1];
+            const firstSegment = this.segments[0];
+            drawLine(ctx, lastSegment.end, firstSegment.start);
+        }
     }
 }
 
@@ -81,6 +86,20 @@ class ElementStore {
 
     addLineSegmentSet(segment: LineSegmentSet) {
         this.lineSegmentSets.push(segment);
+    }
+
+    addRectangle(
+        x: number, y: number, width: number, height: number,
+        strokeStyle: string = 'black',
+        lineWidth: number = 1,
+    ) {
+        const segmentSet = new LineSegmentSet([
+            {start: {x, y}, end: {x: x + width, y}},
+            {start: {x: x + width, y}, end: {x: x + width, y: y + height}},
+            {start: {x: x + width, y: y + height}, end: {x, y: y + height}},
+        ], strokeStyle, lineWidth, true);
+        this.lineSegmentSets.push(segmentSet);
+        return segmentSet;
     }
 }
 export const elementsStore = new ElementStore();
