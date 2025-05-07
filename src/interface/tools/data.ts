@@ -12,19 +12,18 @@ export const defaultToolBoxes = [
             PointerToolActivator,
             RectangleToolActivator,
         ],
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 100,
+        placement: {
+            bottom: 0,
+        }
     },
     {
         id: 'toolbox-2',
         tools: [
             UndoToolActivator,
         ],
-        x: 0,
-        y: 100,
-        width: 100,
-        height: 100,
+        placement: {
+            top: 0,
+            right: 0,
+        }
     }
 ] as const;

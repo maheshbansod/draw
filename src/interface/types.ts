@@ -1,7 +1,11 @@
 export type Placeable = {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+    placement: {
+        top?: number;
+        right?: number;
+        bottom?: number;
+        left?: number;
+        width?: number;
+        height?: number;
+    }
 }
 
