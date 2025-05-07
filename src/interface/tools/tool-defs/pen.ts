@@ -1,7 +1,7 @@
 import type { ToolDependencies } from "../deps";
 import { ToolActivator, type Tool } from "../index";
 import type { MouseSpy } from "../utils";
-import { drawLine, drawLines } from "../../../utils/canvas";
+import { drawLine } from "../../../utils/canvas";
 import { canvasState } from "../../../canvas/state";
 import { canvasHistory } from "../../../composables/history";
 import { LineSegmentSet } from "../../elements";
@@ -37,19 +37,16 @@ export class PenTool implements Tool {
             const strokeStyle = this.strokeStyle;
             const lineWidth = this.lineWidth;
 
-            elementsStore.lineSegmentSets.push(new LineSegmentSet(lines, strokeStyle, lineWidth));
+            const lineSegmentSet = new LineSegmentSet(lines, strokeStyle, lineWidth);
+            elementsStore.addLineSegmentSet(lineSegmentSet);
+            elementsStore.resetCanvas();
 
             canvasHistory.push({
                 apply: () => {
-                    this.ctx.save();
-
-                    this.ctx.strokeStyle = strokeStyle;
-                    this.ctx.lineWidth = lineWidth;
-                    this.ctx.beginPath();
-                    drawLines(this.ctx, lines);
-                    this.ctx.stroke();
-
-                    this.ctx.restore();
+                    elementsStore.addLineSegmentSet(lineSegmentSet);
+                },
+                revert: () => {
+                    elementsStore.removeLineSegmentSet(lineSegmentSet);
                 }
             })
         });

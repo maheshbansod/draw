@@ -1,3 +1,5 @@
+import { canvasState } from "../canvas/state";
+import { drawLines } from "../utils/canvas";
 import { isPointOnLine } from "../utils/math";
 
 export type LineSegment = {
@@ -30,15 +32,55 @@ export class LineSegmentSet {
             }
         }
     }
+
+    draw(ctx: CanvasRenderingContext2D) {
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth = this.lineWidth;
+        drawLines(ctx, this.segments);
+    }
 }
 
-export const elementsStore = {
-    lineSegmentSets: [] as LineSegmentSet[],
-    selectLineSegmentAt: (x: number, y: number) => {
-        for (const segment of elementsStore.lineSegmentSets) {
+class ElementStore {
+    private lineSegmentSets: LineSegmentSet[] = [];
+    private ctx: CanvasRenderingContext2D | null = null;
+
+    constructor(
+    ) {
+    }
+
+    setCtx(ctx: CanvasRenderingContext2D) {
+        this.ctx = ctx;
+    }
+
+    resetCanvas() {
+        if (!this.ctx) return;
+        this.ctx.strokeStyle = canvasState.strokeStyle;
+        this.ctx.lineWidth = canvasState.lineWidth;
+
+        this.ctx.fillStyle = canvasState.bgColor;
+        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+        this.ctx.beginPath();
+        this.lineSegmentSets.forEach((segment) => {
+            segment.draw(this.ctx!);
+        });
+        this.ctx.stroke();
+    }
+
+    selectLineSegmentAt(x: number, y: number) {
+        for (const segment of this.lineSegmentSets) {
             if (segment.containsPoint(x, y)) {
                 return segment;
             }
         }
     }
-};
+
+    removeLineSegmentSet(segment: LineSegmentSet) {
+        this.lineSegmentSets.splice(this.lineSegmentSets.indexOf(segment), 1);
+    }
+
+    addLineSegmentSet(segment: LineSegmentSet) {
+        this.lineSegmentSets.push(segment);
+    }
+}
+export const elementsStore = new ElementStore();
