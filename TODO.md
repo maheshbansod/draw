@@ -1,0 +1,8 @@
+- [ ] cursor size indicator when drawable tool selected
+- [ ] color picker
+- [ ] clear all
+- [ ] auto-save state to some local web storage
+- [ ] customisable toolboxes
+- [ ] show icons for tools
+- [ ] resize
+- [ ] move
