@@ -5,5 +5,6 @@
 - [ ] customisable toolboxes
 - [ ] show icons for tools
 - [ ] resize
-- [ ] move
+- [x] move
 - [ ] canvas history should be serialize-able
+- [ ] canvas resize shouldn't distort image

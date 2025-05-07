@@ -19,6 +19,10 @@ export class PenTool implements Tool {
             strokeStyle: string,
             lineWidth: number
         }[] = [];
+        mouseSpy.registerMouseDown(this, () => {
+            this.ctx.strokeStyle = this.strokeStyle;
+            this.ctx.lineWidth = this.lineWidth;
+        });
         mouseSpy.registerMouseMove(this, ({isMouseDown, x, y, previousX, previousY}) => {
             if (!isMouseDown) return;
 

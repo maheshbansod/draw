@@ -19,9 +19,9 @@ export class LineSegmentSet {
         /**
          * If true, the last segment will be connected to the first segment
          */
-        private strokeStyle: string = 'black',
-        private lineWidth: number = 1,
-        private loop: boolean = false,
+        public readonly strokeStyle: string = 'black',
+        public readonly lineWidth: number = 1,
+        public readonly loop: boolean = false,
     ) {
     }
 
@@ -31,6 +31,19 @@ export class LineSegmentSet {
                 return true;
             }
         }
+    }
+
+    translate(dx: number, dy: number) {
+        for (const segment of this.segments) {
+            segment.start.x += dx;
+            segment.start.y += dy;
+            segment.end.x += dx;
+            segment.end.y += dy;
+        }
+    }
+
+    firstPoint() {
+        return {...this.segments[0].start};
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -43,12 +56,16 @@ export class LineSegmentSet {
             drawLine(ctx, lastSegment.end, firstSegment.start);
         }
     }
+
+    getSegments() {
+        return this.segments.map(segment => ({...segment}));
+    }
 }
 
 class ElementStore {
     private lineSegmentSets: LineSegmentSet[] = [];
     private ctx: CanvasRenderingContext2D | null = null;
-
+    private selectedLineSegmentSet: LineSegmentSet | null = null;
     constructor(
     ) {
     }
@@ -59,17 +76,35 @@ class ElementStore {
 
     resetCanvas() {
         if (!this.ctx) return;
-        this.ctx.strokeStyle = canvasState.strokeStyle;
-        this.ctx.lineWidth = canvasState.lineWidth;
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.strokeStyle = canvasState.strokeStyle;
+        ctx.lineWidth = canvasState.lineWidth;
 
-        this.ctx.fillStyle = canvasState.bgColor;
-        this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        ctx.fillStyle = canvasState.bgColor;
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        this.ctx.beginPath();
         this.lineSegmentSets.forEach((segment) => {
-            segment.draw(this.ctx!);
+            ctx.beginPath();
+            segment.draw(ctx);
+            ctx.stroke();
         });
-        this.ctx.stroke();
+        ctx.beginPath();
+        if (this.selectedLineSegmentSet) {
+            this.drawSelectedLineSegmentSetOutline();
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    drawSelectedLineSegmentSetOutline() {
+        if (!this.selectedLineSegmentSet) return;
+        if (!this.ctx) return;
+
+        // for now let's say i show selection only as a single pixel segment set
+
+        const outlineSegmentSet = new LineSegmentSet(this.selectedLineSegmentSet.getSegments(), 'cyan', 1, this.selectedLineSegmentSet.loop);
+        outlineSegmentSet.draw(this.ctx);
     }
 
     selectLineSegmentAt(x: number, y: number) {
@@ -100,6 +135,14 @@ class ElementStore {
         ], strokeStyle, lineWidth, true);
         this.lineSegmentSets.push(segmentSet);
         return segmentSet;
+    }
+
+    setSelectedLineSegmentSet(segmentSet: LineSegmentSet|null) {
+        this.selectedLineSegmentSet = segmentSet;
+    }
+
+    getSelectedLineSegmentSet() {
+        return this.selectedLineSegmentSet;
     }
 }
 export const elementsStore = new ElementStore();
