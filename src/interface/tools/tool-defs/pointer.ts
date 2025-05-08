@@ -59,7 +59,10 @@ export class PointerTool implements Tool {
         });
 
         this.mouseSpy.registerMouseUp(this, () => {
-            if (!endMousePos || !startMousePos) return;
+            if (!endMousePos || !startMousePos) {
+                startMousePos = null;
+                return;
+            }
             const selectedSegmentSet = elementsStore.getSelectedLineSegmentSet();
             if (!selectedSegmentSet) return;
             const dx = endMousePos.x - startMousePos.x;
