@@ -10,3 +10,4 @@
 - [ ] canvas resize shouldn't distort image
 - [ ] delete stuff
 - [ ] select tool to select multiple things
+- [ ] have a generic shape interface and have some getter methods working on shapes instead of line segments so i can support arc or any random shape more easily
