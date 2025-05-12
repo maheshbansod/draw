@@ -2,12 +2,17 @@ import { elementsStore } from "../elements";
 import type { Serializeable } from "../../utils/serialize";
 import { SerializeableName, type SerOutput } from "../serializers";
 import { getDeserializer } from "../serializers/deserializers";
-import type { HistoryNodeDeserializer } from "./history-node-deserializer";
 /**
  * Possible improvements:
  * - store snapshot on some intermediate steps maybe? -> can help with multiple undos
  * - use web worker
  */
+type SerializedHistoryNode = {
+    state: SerOutput,
+    isHead?: boolean,
+    children: SerializedHistoryNode[],
+};
+
 export class CanvasHistoryManager {
     head: HistoryNode<Commit> | null;
     root: HistoryNode<Commit> | null;
@@ -33,17 +38,45 @@ export class CanvasHistoryManager {
     }
 
     saveHistory() {
-        const serialized = this.root?.serialize();
-        if (serialized) {
-            localStorage.setItem('history', JSON.stringify(serialized));
+        let current: HistoryNode<Commit> | null = this.root;
+        const serializeCurrent = (current: HistoryNode<Commit>): SerializedHistoryNode => {
+            const currentStateSerialized = current.state.serialize();
+            const currentChildrenSerialized = current.children.map(child => {
+                return serializeCurrent(child);
+            });
+            return {
+                state: currentStateSerialized,
+                children: currentChildrenSerialized,
+                isHead: current === this.head ? true : undefined,
+            };
         }
+        if (!current) {
+            return;
+        }
+        const serialized = serializeCurrent(current);
+        localStorage.setItem('history', JSON.stringify(serialized));
     }
 
     loadHistory() {
         const serialized = localStorage.getItem('history');
         if (serialized) {
-            const deserializer = getDeserializer(SerializeableName.HistoryNode);
-            this.root = deserializer.deserialize(JSON.parse(serialized)) as HistoryNode<Commit>;
+            const serializedHistory: SerializedHistoryNode = JSON.parse(serialized);
+            const deserializeCurrent = (serialized: SerializedHistoryNode): HistoryNode<Commit> => {
+                const deserializer = getDeserializer(serialized.state.name);
+                const current = deserializer.deserialize(serialized.state) as Commit;
+                const children = serialized.children.map(child => deserializeCurrent(child));
+                const node = new HistoryNode(current, null);
+                node.children = children;
+                node.children.forEach(child => {
+                    child.parent = node;
+                });
+                if (serialized.isHead) {
+                    this.head = node;
+                }
+                return node;
+            }
+            const root = deserializeCurrent(serializedHistory);
+            this.root = root;
 
             this.applyAll();
         }
@@ -67,21 +100,18 @@ export class CanvasHistoryManager {
         if (this.root === null) {
             return;
         }
-        elementsStore.resetCanvas();
+        const toApply = [];
 
-        let current: HistoryNode<Commit> | null = this.root;
-        let lastApplied: HistoryNode<Commit> | null = null;
+        let current: HistoryNode<Commit> | null = this.head;
         while (current) {
-            current.state.apply();
-            lastApplied = current;
-
-            if (current.children.length > 0) {
-                current = current.children[current.children.length - 1];
-            } else {
-                current = null;
-            }
+            toApply.push(current);
+            current = current.parent;
         }
-        this.head = lastApplied;
+
+        elementsStore.resetCanvas();
+        toApply.forEach(node => {
+            node.state.apply();
+        });
     }
     
 }
