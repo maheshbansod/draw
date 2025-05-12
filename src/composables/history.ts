@@ -1,4 +1,4 @@
-import { CanvasHistoryManager } from "../interface/draw-board-manager";
+import { CanvasHistoryManager } from "../interface/history";
 
 // would this work?
 export const canvasHistory = new CanvasHistoryManager();
