@@ -1,5 +1,6 @@
 import { canvasHistory } from "../../../composables/history";
 import { elementsStore } from "../../elements";
+import { MoveCommit } from "../../history/commits/move";
 import type { ToolDependencies } from "../deps";
 import { ToolActivator, type Tool } from "../index";
 import type { MouseSpy } from "../utils";
@@ -72,14 +73,7 @@ export class PointerTool implements Tool {
             elementsStore.resetCanvas();
             const segmentSet = selectedSegmentSet;
 
-            canvasHistory.push({
-                apply: () => {
-                    segmentSet.translate(dx, dy);
-                },
-                revert: () => {
-                    segmentSet.translate(-dx, -dy);
-                }
-            });
+            canvasHistory.push(new MoveCommit(segmentSet, dx, dy));
             startMousePos = null;
         });
     }

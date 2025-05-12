@@ -4,7 +4,7 @@ import { elementsStore } from "../../elements";
 import type { ToolDependencies } from "../deps";
 import { ToolActivator, type Tool } from "../index";
 import type { MouseSpy } from "../utils";
-
+import { AddSegmentSetCommit } from "../../history/commits/add-segment-set";
 export class RectangleTool implements Tool {
     constructor(
         private mouseSpy: MouseSpy,
@@ -35,14 +35,7 @@ export class RectangleTool implements Tool {
             const rectangle = elementsStore.addRectangle(initialMousePos.x, initialMousePos.y, dx, dy, canvasState.strokeStyle, canvasState.lineWidth);
             elementsStore.resetCanvas();
 
-            canvasHistory.push({
-                apply: () => {
-                    elementsStore.addLineSegmentSet(rectangle);
-                },
-                revert: () => {
-                    elementsStore.removeLineSegmentSet(rectangle);
-                }
-            });
+            canvasHistory.push(new AddSegmentSetCommit(rectangle));
             initialMousePos = null;
             cachedCanvasData = null;
 
