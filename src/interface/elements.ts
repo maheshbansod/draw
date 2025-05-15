@@ -174,6 +174,8 @@ class ElementStore {
     resetCanvas() {
         if (!this.ctx) return;
         const ctx = this.ctx;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
         ctx.save();
         ctx.strokeStyle = canvasState.strokeStyle;
         ctx.lineWidth = canvasState.lineWidth;
