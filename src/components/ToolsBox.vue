@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { markRaw, ref, computed } from 'vue';
 import type { ToolBox } from '../interface/tools/index';
+import { ToolActivator } from '../interface/tools';
 import { useTool } from '../composables/tools';
 const props = defineProps<ToolBox>();
 
@@ -22,13 +23,14 @@ const toolboxPlacementStyle = computed(() => {
 <template>
     <div class="tools-box" :style="toolboxPlacementStyle">
         <div class="tools-box-item" v-for="tool in tools" :key="tool.name">
-            <button
+            <button v-if="tool instanceof ToolActivator"
                 class="cursor-pointer rounded-md bg-gray-200 hover:bg-gray-300 transition-colors px-2 py-1 select-none"
                 :class="{ 'bg-gray-300': isCurrentToolActivator(tool) }"
                 @click="selectTool(tool)"
             >
                 {{ tool.name }}
             </button>
+            <component v-else :is="tool" />
         </div>
     </div>
 </template>
