@@ -3,6 +3,7 @@ import { elementsStore, LineSegmentSet } from "../../elements";
 import type { ToolDependencies } from "../deps";
 import { ToolActivator, type Tool } from "../index";
 import type { MouseSpy } from "../utils";
+import { RemoveSegmentSetsCommit } from "../../history/commits/remove-segment-sets";
 export class EraserTool implements Tool {
     constructor(
         private mouseSpy: MouseSpy,
@@ -21,18 +22,7 @@ export class EraserTool implements Tool {
             if (removedSegments.length === 0) return;
             const segments = [...removedSegments];
             removedSegments = [];
-            canvasHistory.push({
-                apply: () => {
-                    segments.forEach((segment) => {
-                        elementsStore.removeLineSegmentSet(segment);
-                    });
-                },
-                revert: () => {
-                    segments.forEach((segment) => {
-                        elementsStore.addLineSegmentSet(segment);
-                    });
-                }
-            });
+            canvasHistory.push(new RemoveSegmentSetsCommit(segments));
         });
     }
 

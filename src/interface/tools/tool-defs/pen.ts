@@ -6,6 +6,7 @@ import { canvasState } from "../../../canvas/state";
 import { canvasHistory } from "../../../composables/history";
 import { LineSegmentSet } from "../../elements";
 import { elementsStore } from "../../elements";
+import { AddSegmentSetCommit } from "../../history/commits/add-segment-set";
 export class PenTool implements Tool {
     constructor(
         private mouseSpy: MouseSpy,
@@ -45,14 +46,7 @@ export class PenTool implements Tool {
             elementsStore.addLineSegmentSet(lineSegmentSet);
             elementsStore.resetCanvas();
 
-            canvasHistory.push({
-                apply: () => {
-                    elementsStore.addLineSegmentSet(lineSegmentSet);
-                },
-                revert: () => {
-                    elementsStore.removeLineSegmentSet(lineSegmentSet);
-                }
-            })
+            canvasHistory.push(new AddSegmentSetCommit(lineSegmentSet));
         });
     }
     scheduleDrawLine(start: { x: number, y: number }, end: { x: number, y: number }) {

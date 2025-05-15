@@ -1,7 +1,8 @@
 import { canvasState } from "../canvas/state";
 import { drawLine, drawLines } from "../utils/canvas";
 import { isPointOnLine } from "../utils/math";
-
+import type { Serializeable } from "../utils/serialize";
+import { SerializeableName, type Deserializer, type SerOutput } from "./serializers";
 export type LineSegment = {
     start: {
         x: number;
@@ -13,7 +14,7 @@ export type LineSegment = {
     };
 }
 
-export class LineSegmentSet {
+export class LineSegmentSet implements Serializeable {
     constructor(
         private segments: LineSegment[] = [],
         /**
@@ -23,6 +24,17 @@ export class LineSegmentSet {
         public readonly lineWidth: number = 1,
         public readonly loop: boolean = false,
     ) {
+    }
+    serialize(): SerOutput {
+        return {
+            name: SerializeableName.LineSegmentSet,
+            data: {
+                segments: this.segments.map(segment => ({...segment})),
+                strokeStyle: this.strokeStyle,
+                lineWidth: this.lineWidth,
+                loop: this.loop,
+            }
+        }
     }
 
     containsPoint(x: number, y: number) {
@@ -59,6 +71,91 @@ export class LineSegmentSet {
 
     getSegments() {
         return this.segments.map(segment => ({...segment}));
+    }
+}
+
+export class LineSegmentSetDeserializer implements Deserializer<LineSegmentSet> {
+    /**
+     * TODO: should i use some library or something?
+     * @param obj 
+     * @returns 
+     */
+    deserialize(obj: SerOutput): LineSegmentSet {
+        const segmentsRaw = obj.data.segments;
+        if (typeof segmentsRaw !== 'object' || segmentsRaw === null) {
+            throw new Error('segments is not an object');
+        }
+        if (
+            segmentsRaw === null
+            || (!('length' in segmentsRaw)
+                || typeof segmentsRaw.length !== 'number')
+            || !Array.isArray(segmentsRaw)
+        ) {
+            throw new Error('segments is not an array');
+        }
+
+        const segments = segmentsRaw.map((segment) => {
+            if (typeof segment !== 'object' || segment === null) {
+                throw new Error('segment is not an object');
+            }
+            if (!('start' in segment)) {
+                throw new Error('segment is not an object');
+            }
+            if (typeof segment.start !== 'object' || segment.start === null) {
+                throw new Error('segment.start is not an object');
+            }
+            if (!('x' in segment.start)) {
+                throw new Error('segment.start is not an object');
+            }
+            if (!('y' in segment.start)) {
+                throw new Error('segment.start is not an object');
+            }
+            if (typeof segment.start.x !== 'number') {
+                throw new Error('segment.start.x is not a number');
+            }
+            if (typeof segment.start.y !== 'number') {
+                throw new Error('segment.start.y is not a number');
+            }
+            if (typeof segment.end !== 'object' || segment.end === null) {
+                throw new Error('segment.end is not an object');
+            }
+            if (!('x' in segment.end)) {
+                throw new Error('segment.end is not an object');
+            }
+            if (!('y' in segment.end)) {
+                throw new Error('segment.end is not an object');
+            }
+            if (typeof segment.end.x !== 'number') {
+                throw new Error('segment.end.x is not a number');
+            }
+            if (typeof segment.end.y !== 'number') {
+                throw new Error('segment.end.y is not a number');
+            }
+            return {
+                start: {
+                    x: segment.start.x,
+                    y: segment.start.y,
+                },
+                end: {
+                    x: segment.end.x,
+                    y: segment.end.y,
+                },
+            }
+        });
+        const strokeStyle = obj.data.strokeStyle;
+        if (typeof strokeStyle !== 'string') {
+            throw new Error('strokeStyle is not a string');
+        }
+        const lineWidth = obj.data.lineWidth;
+        if (typeof lineWidth !== 'number') {
+            throw new Error('lineWidth is not a number');
+        }
+        const loop = obj.data.loop;
+        if (typeof loop !== 'boolean') {
+            throw new Error('loop is not a boolean');
+        }
+        const segmentSet = new LineSegmentSet(segments, strokeStyle, lineWidth, loop);
+        return segmentSet;
     }
 }
 
