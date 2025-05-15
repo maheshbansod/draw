@@ -55,7 +55,10 @@ export class LineSegmentSet implements Serializeable {
     }
 
     firstPoint() {
-        return {...this.segments[0].start};
+        const start = {...this.segments[0].start};
+        start.x += canvasState.pan.x;
+        start.y += canvasState.pan.y;
+        return start;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -183,6 +186,7 @@ class ElementStore {
         ctx.fillStyle = canvasState.bgColor;
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+        ctx.translate(canvasState.pan.x, canvasState.pan.y);
         this.lineSegmentSets.forEach((segment) => {
             ctx.beginPath();
             segment.draw(ctx);
@@ -212,6 +216,8 @@ class ElementStore {
     }
 
     selectLineSegmentAt(x: number, y: number) {
+        x -= canvasState.pan.x;
+        y -= canvasState.pan.y;
         for (const segment of this.lineSegmentSets) {
             if (segment.containsPoint(x, y)) {
                 return segment;
@@ -224,6 +230,7 @@ class ElementStore {
     }
 
     addLineSegmentSet(segment: LineSegmentSet) {
+        segment.translate(-canvasState.pan.x, -canvasState.pan.y);
         this.lineSegmentSets.push(segment);
     }
 
@@ -232,6 +239,8 @@ class ElementStore {
         strokeStyle: string = 'black',
         lineWidth: number = 1,
     ) {
+        x -= canvasState.pan.x;
+        y -= canvasState.pan.y;
         const segmentSet = new LineSegmentSet([
             {start: {x, y}, end: {x: x + width, y}},
             {start: {x: x + width, y}, end: {x: x + width, y: y + height}},

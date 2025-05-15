@@ -1,6 +1,7 @@
 import { computed, shallowRef } from "vue";
 import type { ToolDependencies } from "../interface/tools/deps";
 import { defaultToolBoxes } from "../interface/tools/data";
+import { ToolActivator } from "../interface/tools";
 
 const toolDependencies = shallowRef<ToolDependencies|null>(null);
 
@@ -11,10 +12,10 @@ export const useToolboxes = () => {
             const ctx = toolDependencies.value!.ctx;
             return {
                 ...toolBox,
-                tools: toolBox.tools.map(tool => new tool({
+                tools: toolBox.tools.map(tool => tool.prototype instanceof ToolActivator ? new tool({
                     mouseSpy,
                     ctx,
-                })),
+                }) : tool),
             }
         }) : null;
     });

@@ -1,3 +1,4 @@
+import type { Component } from "vue";
 import type { Placeable } from "../types";
 import type { ToolDependencies } from "./deps";
 export class ToolActivator {
@@ -17,7 +18,7 @@ export class ToolActivator {
 
 export type ToolBox = Placeable & {
     id: string;
-    tools: ToolActivator[];
+    tools: (ToolActivator|Component)[];
 }
 
 export interface Tool {

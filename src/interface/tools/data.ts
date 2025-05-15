@@ -4,6 +4,7 @@ import { UndoToolActivator } from "./tool-defs/undo";
 import { PointerToolActivator } from "./tool-defs/pointer";
 import { RectangleToolActivator } from "./tool-defs/rectangle";
 import { DeleteToolActivator } from "./tool-defs/delete";
+import Pan from "../../components/tools/Pan.vue";
 export const defaultToolBoxes = [
     {
         id: 'toolbox-1',
@@ -26,6 +27,16 @@ export const defaultToolBoxes = [
         placement: {
             top: 0,
             right: 0,
+        }
+    },
+    {
+        id: 'toolbox-3',
+        tools: [
+            Pan
+        ],
+        placement: {
+            top: 0,
+            left: 0,
         }
     }
 ] as const;
