@@ -194,6 +194,11 @@ class ElementStore {
         ctx.restore();
     }
 
+    clear() {
+        this.lineSegmentSets = [];
+        this.selectedLineSegmentSet = null;
+    }
+
     drawSelectedLineSegmentSetOutline() {
         if (!this.selectedLineSegmentSet) return;
         if (!this.ctx) return;

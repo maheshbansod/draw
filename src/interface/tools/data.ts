@@ -3,6 +3,7 @@ import { EraserToolActivator } from "./tool-defs/eraser";
 import { UndoToolActivator } from "./tool-defs/undo";
 import { PointerToolActivator } from "./tool-defs/pointer";
 import { RectangleToolActivator } from "./tool-defs/rectangle";
+import { DeleteToolActivator } from "./tool-defs/delete";
 export const defaultToolBoxes = [
     {
         id: 'toolbox-1',
@@ -20,6 +21,7 @@ export const defaultToolBoxes = [
         id: 'toolbox-2',
         tools: [
             UndoToolActivator,
+            DeleteToolActivator,
         ],
         placement: {
             top: 0,

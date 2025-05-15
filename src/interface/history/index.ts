@@ -11,7 +11,7 @@ type SerializedHistoryNode = {
     state: SerOutput,
     isHead?: boolean,
     children: SerializedHistoryNode[],
-};
+} | null;
 
 export class CanvasHistoryManager {
     head: HistoryNode<Commit> | null;
@@ -50,10 +50,7 @@ export class CanvasHistoryManager {
                 isHead: current === this.head ? true : undefined,
             };
         }
-        if (!current) {
-            return;
-        }
-        const serialized = serializeCurrent(current);
+        const serialized = current ? serializeCurrent(current) : null;
         localStorage.setItem('history', JSON.stringify(serialized));
     }
 
@@ -61,10 +58,13 @@ export class CanvasHistoryManager {
         const serialized = localStorage.getItem('history');
         if (serialized) {
             const serializedHistory: SerializedHistoryNode = JSON.parse(serialized);
-            const deserializeCurrent = (serialized: SerializedHistoryNode): HistoryNode<Commit> => {
+            const deserializeCurrent = (serialized: SerializedHistoryNode): HistoryNode<Commit>|null => {
+                if (!serialized) {
+                    return null;
+                }
                 const deserializer = getDeserializer(serialized.state.name);
                 const current = deserializer.deserialize(serialized.state) as Commit;
-                const children = serialized.children.map(child => deserializeCurrent(child));
+                const children = serialized.children.map(child => deserializeCurrent(child)!).filter(Boolean);
                 const node = new HistoryNode(current, null);
                 node.children = children;
                 node.children.forEach(child => {
@@ -77,9 +77,20 @@ export class CanvasHistoryManager {
             }
             const root = deserializeCurrent(serializedHistory);
             this.root = root;
+            if (!this.root) {
+                this.head = null;
+            }
 
             this.applyAll();
         }
+    }
+
+    clear() {
+        this.head = null;
+        this.root = null;
+        this.saveHistory();
+        elementsStore.clear();
+        elementsStore.resetCanvas();
     }
 
     undo() {
