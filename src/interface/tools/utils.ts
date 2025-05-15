@@ -21,12 +21,19 @@ export class MouseSpy {
     }> = new Map();
     constructor(private canvas: HTMLCanvasElement) {
         this.canvas = canvas;
+        const canvasRect = canvas.getBoundingClientRect();
+        const resolveX = (event: MouseEvent) => {
+            return event.clientX - canvasRect.left;
+        };
+        const resolveY = (event: MouseEvent) => {
+            return event.clientY - canvasRect.top;
+        };
         const onMouseDown = (event: MouseEvent) => {
             this.isMouseDown = true;
-            this.previousX = event.clientX;
-            this.previousY = event.clientY;
-            this.currentX = event.clientX;
-            this.currentY = event.clientY;
+            this.previousX = resolveX(event);
+            this.previousY = resolveY(event);
+            this.currentX = resolveX(event);
+            this.currentY = resolveY(event);
             this.listeners.forEach((listener) => {
                 listener.onMouseDown.forEach((listener) => {
                     listener({
@@ -44,8 +51,8 @@ export class MouseSpy {
             this.previousX = this.currentX;
             this.previousY = this.currentY;
 
-            this.currentX = event.clientX;
-            this.currentY = event.clientY;
+            this.currentX = resolveX(event);
+            this.currentY = resolveY(event);
             this.listeners.forEach((listener) => {
                 listener.onMouseMove.forEach((listener) => {
                     listener({
