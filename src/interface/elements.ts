@@ -1,6 +1,6 @@
 import { canvasState } from "../canvas/state";
 import { drawLine, drawLines } from "../utils/canvas";
-import { isPointOnLine } from "../utils/math";
+import { isPointOnLine, isLineInRect } from "../utils/math";
 import type { Serializeable } from "../utils/serialize";
 import { SerializeableName, type Deserializer, type SerOutput } from "./serializers";
 export type LineSegment = {
@@ -43,6 +43,15 @@ export class LineSegmentSet implements Serializeable {
                 return true;
             }
         }
+    }
+
+    isCompletelyInRect(rect: {x: number, y: number, w: number, h: number}) {
+	for (const segment of this.segments) {
+	    if (!isLineInRect(segment, rect)) {
+		return false;
+	    }
+	}
+	return true;
     }
 
     translate(dx: number, dy: number) {
@@ -162,7 +171,7 @@ export class LineSegmentSetDeserializer implements Deserializer<LineSegmentSet> 
 class ElementStore {
     private lineSegmentSets: LineSegmentSet[] = [];
     private ctx: CanvasRenderingContext2D | null = null;
-    private selectedLineSegmentSet: LineSegmentSet | null = null;
+    private selectedLineSegmentSets: LineSegmentSet[] = [];
     constructor(
     ) {
     }
@@ -189,7 +198,7 @@ class ElementStore {
             ctx.stroke();
         });
         ctx.beginPath();
-        if (this.selectedLineSegmentSet) {
+        if (this.selectedLineSegmentSets[0]) {
             this.drawSelectedLineSegmentSetOutline();
         }
         ctx.stroke();
@@ -198,17 +207,19 @@ class ElementStore {
 
     clear() {
         this.lineSegmentSets = [];
-        this.selectedLineSegmentSet = null;
+        this.selectedLineSegmentSets = [];
     }
 
     drawSelectedLineSegmentSetOutline() {
-        if (!this.selectedLineSegmentSet) return;
+        if (!this.selectedLineSegmentSets[0]) return;
         if (!this.ctx) return;
 
         // for now let's say i show selection only as a single pixel segment set
 
-        const outlineSegmentSet = new LineSegmentSet(this.selectedLineSegmentSet.getSegments(), 'cyan', 1, this.selectedLineSegmentSet.loop);
-        outlineSegmentSet.draw(this.ctx);
+	for (const selectedLineSegmentSet of this.selectedLineSegmentSets) {
+	    const outlineSegmentSet = new LineSegmentSet(selectedLineSegmentSet.getSegments(), 'cyan', 1, selectedLineSegmentSet.loop);
+	    outlineSegmentSet.draw(this.ctx);
+	}
     }
 
     selectLineSegmentAt(x: number, y: number) {
@@ -241,12 +252,24 @@ class ElementStore {
         return segmentSet;
     }
 
-    setSelectedLineSegmentSet(segmentSet: LineSegmentSet|null) {
-        this.selectedLineSegmentSet = segmentSet;
+    extendSelectedLineSegmentSets(segmentSets: LineSegmentSet[]) {
+	segmentSets.forEach(segmentSet => this.selectedLineSegmentSets.push(segmentSet));
     }
 
-    getSelectedLineSegmentSet() {
-        return this.selectedLineSegmentSet;
+    setSelectedLineSegmentSet(segmentSet: LineSegmentSet|null) {
+	if (!segmentSet) {
+	    this.selectedLineSegmentSets = [];
+	    return;
+	}
+	this.selectedLineSegmentSets = [segmentSet];
+    }
+
+    getSegmentSetsWithinRect(rect: {x: number, y: number, w: number, h: number}): LineSegmentSet[] {
+	return this.lineSegmentSets.filter(segmentSet => segmentSet.isCompletelyInRect(rect));
+    }
+
+    getSelectedLineSegmentSets() {
+        return this.selectedLineSegmentSets;
     }
 }
 export const elementsStore = new ElementStore();
