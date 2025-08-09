@@ -1,6 +1,17 @@
 <template>
-    <canvas ref="canvas" />
+    <canvas draggable="false" ref="canvas" />
 </template>
+
+<style>
+canvas {
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+</style>
 
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
