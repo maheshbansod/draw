@@ -48,6 +48,7 @@ export class PointerTool implements Tool {
           this.ctx.putImageData(cachedCanvasData, 0, 0);
         }
         this.ctx.beginPath();
+        this.ctx.lineWidth = 1;
         this.ctx.rect(startMousePos.x, startMousePos.y, w, h);
         this.ctx.stroke();
       });

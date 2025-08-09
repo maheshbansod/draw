@@ -211,25 +211,30 @@ class ElementStore {
     const ctx = this.ctx;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    console.log("olde linewidth", ctx.lineWidth)
     ctx.save();
-    ctx.strokeStyle = canvasState.strokeStyle;
-    ctx.lineWidth = canvasState.lineWidth;
+    try {
+      ctx.strokeStyle = canvasState.strokeStyle;
+      ctx.lineWidth = canvasState.lineWidth;
 
-    ctx.fillStyle = canvasState.bgColor;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      ctx.fillStyle = canvasState.bgColor;
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    ctx.translate(canvasState.pan.x, canvasState.pan.y);
-    this.lineSegmentSets.forEach((segment) => {
+      ctx.translate(canvasState.pan.x, canvasState.pan.y);
+      this.lineSegmentSets.forEach((segment) => {
+        ctx.beginPath();
+        segment.draw(ctx);
+        ctx.stroke();
+      });
       ctx.beginPath();
-      segment.draw(ctx);
+      if (this.selectedLineSegmentSets) {
+        this.drawSelectedLineSegmentSetOutline();
+      }
       ctx.stroke();
-    });
-    ctx.beginPath();
-    if (this.selectedLineSegmentSets) {
-      this.drawSelectedLineSegmentSetOutline();
+    } finally {
+      ctx.restore();
+      console.log("newu linewidth", ctx.lineWidth)
     }
-    ctx.stroke();
-    ctx.restore();
   }
 
   removeLineSegmentSet(segment: LineSegmentSet) {
