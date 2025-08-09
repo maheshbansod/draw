@@ -211,7 +211,6 @@ class ElementStore {
     const ctx = this.ctx;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    console.log("olde linewidth", ctx.lineWidth)
     ctx.save();
     try {
       ctx.strokeStyle = canvasState.strokeStyle;
@@ -233,7 +232,6 @@ class ElementStore {
       ctx.stroke();
     } finally {
       ctx.restore();
-      console.log("newu linewidth", ctx.lineWidth)
     }
   }
 
